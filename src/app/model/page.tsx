@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { ILayer, IModel } from '@/types'
 
 
@@ -13,7 +12,7 @@ const availableILayers = [
   { id: 'dropout', type: 'Dropout', description: 'Dropout 层', parameters: { rate: 0.5 } },
 ]
 
-export default function IModelManagement() {
+export default function Page() {
   const [models, setModels] = useState<IModel[]>([])
   const [isCreating, setIsCreating] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -78,6 +77,14 @@ export default function IModelManagement() {
       setIsEditing(true)
       setCurrentModelId(id)
     }
+  }
+  const handleCancel = () => {
+    setModelName('')
+    setModelDescription('')
+    setCurrentLayers([])
+    setCurrentModelId('')
+    setIsCreating(false)
+    setIsEditing(false)
   }
   useEffect(() => {
     if (isMounted) {
@@ -255,7 +262,7 @@ export default function IModelManagement() {
           {/* 底部操作 */}
           <div className="flex justify-end gap-3 mt-6">
             <button
-              onClick={() => setIsCreating(false)}
+              onClick={() => handleCancel()}
               className="border border-gray-300 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-50"
             >
               取消

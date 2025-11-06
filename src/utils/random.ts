@@ -1,5 +1,4 @@
 export const getOption = () => {
-    // 生成稳步下降的训练损失值
     const lossData = [];
     let loss = 0.8;  // 从0.8开始
     for (let i = 0; i < 7; i++) {
@@ -7,8 +6,6 @@ export const getOption = () => {
         if (loss < 0.2) loss = 0.2;  // 确保损失值不小于0.2
         lossData.push(parseFloat(loss.toFixed(2)));
     }
-
-    // 生成稳步上升的准确率值
     const accuracyData = [];
     let accuracy = 60;  // 从60开始
     for (let i = 0; i < 7; i++) {
