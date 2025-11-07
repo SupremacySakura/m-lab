@@ -3,9 +3,9 @@ export interface IProject {
     name: string
     description: string
     createdAt: string
-    trainingSet: string
-    validationSet: string
-    testSet: string
+    trainingSet?: string
+    validationSet?: string
+    testSet?: string
     experiments: IExperiment[]
 }
 
@@ -24,6 +24,7 @@ export interface IExperiment {
     computingResource: string[]  // 计算资源
     description: string  // 实验描述
     model: IModel  // 模型
+    createdAt:string
 }
 
 export interface ILayer {

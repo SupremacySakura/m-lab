@@ -11,7 +11,13 @@ const availableILayers = [
   { id: 'dense', type: 'Dense', description: '全连接层', parameters: { units: 128, activation: 'relu' } },
   { id: 'dropout', type: 'Dropout', description: 'Dropout 层', parameters: { rate: 0.5 } },
 ]
-
+export const defaultModel: IModel = {
+  id: '0',
+  name: '内置模型',
+  description: '内置模型',
+  createdAt: '2025-11-7 22:45:36',
+  layers: availableILayers
+}
 export default function Page() {
   const [models, setModels] = useState<IModel[]>([])
   const [isCreating, setIsCreating] = useState(false)
