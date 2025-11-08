@@ -1,10 +1,15 @@
 'use client'
 import { defaultModel } from '@/app/model/page'
-import { IModel, IProject } from '@/types'
+import { IExperiment, IModel, IProject } from '@/types'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import Modal from '@/components/Modal'
 
+enum OpenModalType {
+    add = 'add',
+    edit = 'edit'
+}
 export default function Page() {
     const [projects, setProjects] = useState<IProject[]>([])
     const [models, setModels] = useState<IModel[]>()
@@ -12,7 +17,51 @@ export default function Page() {
     const { id } = useParams<{ id: string }>()
     const [isMounted, setIsMounted] = useState(false)
     const decodedId = decodeURIComponent(id)
+    const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [openModalType, setOpenModalType] = useState<OpenModalType>()
+    const [editExperiment, setEditExperiment] = useState<IExperiment>()
+    const onCloseModal = () => {
+        setIsOpen(false)
+    }
 
+    const handleOpenModal = (type: OpenModalType) => {
+        setOpenModalType(type)
+        switch (type) {
+            case OpenModalType.add:
+                setExperimentName('')
+                setOptimizer('SGD')
+                setLearningRate(0)
+                setBatchSize(0)
+                setEpoch(0)
+                setSetUrl('')
+                setMultithreading(0)
+                setWeightInit('Xavier')
+                setSaveFormat('JSON+NPZ')
+                setAccelerationMethod('im2col')
+                setComputingResource([])
+                setDescription('')
+                setModel(defaultModel)
+                break
+            case OpenModalType.edit:
+                if (editExperiment) {
+                    setExperimentName(editExperiment?.name)
+                    setOptimizer(editExperiment.optimizer)
+                    setLearningRate(editExperiment.learningRate)
+                    setBatchSize(editExperiment.batchSize)
+                    setEpoch(editExperiment.epoch)
+                    setSetUrl(editExperiment.setUrl)
+                    setMultithreading(editExperiment.multithreading)
+                    setWeightInit(editExperiment.weightInit)
+                    setSaveFormat(editExperiment.saveFormat)
+                    setAccelerationMethod(editExperiment.accelerationMethod)
+                    setComputingResource(editExperiment.computingResource)
+                    setDescription(editExperiment.name)
+                    setModel(editExperiment.model)
+                }
+                break
+        }
+        setIsOpen(true)
+    }
     // 添加实验
     const [experimentName, setExperimentName] = useState<string>('')
     const [optimizer, setOptimizer] = useState<string>('SGD')
@@ -75,7 +124,56 @@ export default function Page() {
         setComputingResource([])
         setDescription('')
         setModel(defaultModel)
+        setIsOpen(false)
     }
+
+    const handleSaveExperimentEdit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault()
+        const experiment = {
+            id: Date.now().toString(),
+            name: experimentName,
+            optimizer,
+            learningRate,
+            batchSize,
+            epoch,
+            setUrl,
+            multithreading,
+            weightInit,
+            saveFormat,
+            accelerationMethod,
+            computingResource,
+            description,
+            model,
+            createdAt: new Date().toLocaleString()
+        }
+        setProjects(prevProjects =>
+            prevProjects.map(project => {
+                if (project.id === currentProject?.id) {
+                    const index = project.experiments.findIndex((item) => item.id === editExperiment?.id)
+                    const newProjectExperiments = [...project.experiments]
+                    newProjectExperiments[index] = experiment
+                    return { ...project, experiments: newProjectExperiments }
+                }
+                return project
+            }
+            )
+        )
+        setExperimentName('')
+        setOptimizer('SGD')
+        setLearningRate(0)
+        setBatchSize(0)
+        setEpoch(0)
+        setSetUrl('')
+        setMultithreading(0)
+        setWeightInit('Xavier')
+        setSaveFormat('JSON+NPZ')
+        setAccelerationMethod('im2col')
+        setComputingResource([])
+        setDescription('')
+        setModel(defaultModel)
+        setIsOpen(false)
+    }
+
     const handleDeleteExperiment = (experimentId: string) => {
         setProjects(prevProjects =>
             prevProjects.map(project =>
@@ -159,9 +257,9 @@ export default function Page() {
             const project = projects?.find((item) => item.id === decodedId)
             setCurrentProject(project)
         }
-    }, [projects,id])
+    }, [projects, id])
     return (
-        <div className="max-w-5xl mx-auto p-8 space-y-10">
+        <div className="max-w-5xl mx-auto p-8 space-y-10 relative">
             {/* 顶部标题 */}
             <div className="flex items-center justify-between border-b pb-4">
                 <h1 className="text-3xl font-semibold text-gray-800">
@@ -193,191 +291,205 @@ export default function Page() {
                 </div>
             </div>
 
+            <button
+                onClick={() => handleOpenModal(OpenModalType.add)}
+                className="px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+            >
+                添加实验
+            </button>
+
+
             {/* 实验创建 */}
-            <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
-                <h3 className="text-2xl font-medium text-gray-700">实验创建</h3>
-                <form className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">实验名称</label>
-                            <input
-                                type="text"
-                                placeholder="输入实验名称"
-                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={experimentName}
-                                onChange={(e) => setExperimentName(e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">优化器</label>
-                            <select
-                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={optimizer}
-                                onChange={(e) => setOptimizer(e.target.value)}
-                            >
-                                <option value={'SGD'}>SGD</option>
-                                <option value={'Adam'}>Adam</option>
-                                <option value={'RMSprop'}>RMSprop</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">学习率</label>
-                            <input
-                                type="number"
-                                step="0.00001"
-                                min="0"
-                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={learningRate}
-                                onChange={(e) => setLearningRate(Number(e.target.value))}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Batch Size</label>
-                            <input
-                                type="number"
-                                min="1"
-                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={batchSize}
-                                onChange={(e) => setBatchSize(Number(e.target.value))}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Epoch</label>
-                            <input
-                                type="number"
-                                min="1"
-                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={epoch}
-                                onChange={(e) => setEpoch(Number(e.target.value))}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">数据集路径</label>
-                            <input
-                                type="text"
-                                placeholder="输入数据集路径"
-                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={setUrl}
-                                onChange={(e) => setSetUrl(e.target.value)}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">多线程加载</label>
-                            <input
-                                type="number"
-                                min="1"
-                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={multithreading}
-                                onChange={(e) => setMultithreading(Number(e.target.value))}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">权重初始化</label>
-                            <select
-                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={weightInit}
-                                onChange={(e) => setWeightInit(e.target.value)}
-                            >
-                                <option value={'Xavier'}>Xavier</option>
-                                <option value={'He'}>He</option>
-                                <option value={'Normal'}>Normal</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">模型保存格式</label>
-                            <select
-                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={saveFormat}
-                                onChange={(e) => setSaveFormat(e.target.value)}
-                            >
-                                <option value={'JSON+NPZ'}>JSON+NPZ</option>
-                                <option value={'HDF5'}>HDF5</option>
-                                <option value={'ONNX'}>ONNX</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">加速方式</label>
-                            <select
-                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                                value={accelerationMethod}
-                                onChange={(e) => setAccelerationMethod(e.target.value)}
-                            >
-                                <option value={'im2col'}>im2col</option>
-                                <option value={'CuDNN'} >CuDNN</option>
-                                <option value={'MKL-DNN'}>MKL-DNN</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">计算资源</label>
-                            <div
-                                className="flex flex-wrap gap-3 text-gray-700"
-
-                            >
-                                {['CPU1', 'CPU2', 'GPU1', 'GPU2'].map((res) => (
-                                    <label key={res} className="flex items-center gap-1">
-                                        <input
-                                            type="checkbox"
-                                            checked={computingResource.includes(res)}
-                                            onChange={() => handleCheck(res)}
-                                            className="accent-blue-500"
-                                        />
-                                        {res}
-                                    </label>
-                                ))}
+            <Modal isOpen={isOpen} onClose={onCloseModal}>
+                <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
+                    <h3 className="text-2xl font-medium text-gray-700">实验创建</h3>
+                    <form className="space-y-6">
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">实验名称</label>
+                                <input
+                                    type="text"
+                                    placeholder="输入实验名称"
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={experimentName}
+                                    onChange={(e) => setExperimentName(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">优化器</label>
+                                <select
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={optimizer}
+                                    onChange={(e) => setOptimizer(e.target.value)}
+                                >
+                                    <option value={'SGD'}>SGD</option>
+                                    <option value={'Adam'}>Adam</option>
+                                    <option value={'RMSprop'}>RMSprop</option>
+                                </select>
                             </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">
-                                模型选择
-                            </label>
-                            <select
-                                className="border border-gray-300 rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={model?.id}
-                                onChange={(e) => {
-                                    const newModel = models?.find((item) => {
-                                        return item.id === e.target.value
-                                    })
-                                    setModel(newModel || defaultModel)
-                                }}
-                            >
-                                {models?.length &&
-                                    models.map((item) => (
-                                        <option key={item.id} value={item.id}>
-                                            {item.name}
-                                        </option>
-                                    ))}
-                            </select>
+
+                        <div className="grid md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">学习率</label>
+                                <input
+                                    type="number"
+                                    step="0.00001"
+                                    min="0"
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={learningRate}
+                                    onChange={(e) => setLearningRate(Number(e.target.value))}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">Batch Size</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={batchSize}
+                                    onChange={(e) => setBatchSize(Number(e.target.value))}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">Epoch</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={epoch}
+                                    onChange={(e) => setEpoch(Number(e.target.value))}
+                                />
+                            </div>
                         </div>
 
-                    </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">数据集路径</label>
+                                <input
+                                    type="text"
+                                    placeholder="输入数据集路径"
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={setUrl}
+                                    onChange={(e) => setSetUrl(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">多线程加载</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={multithreading}
+                                    onChange={(e) => setMultithreading(Number(e.target.value))}
+                                />
+                            </div>
+                        </div>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700">实验备注</label>
-                        <textarea
-                            placeholder="输入实验备注信息"
-                            className="w-full border border-gray-300 rounded-md p-2 h-20 focus:ring-2 focus:ring-blue-500 outline-none"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                        />
-                    </div>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">权重初始化</label>
+                                <select
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={weightInit}
+                                    onChange={(e) => setWeightInit(e.target.value)}
+                                >
+                                    <option value={'Xavier'}>Xavier</option>
+                                    <option value={'He'}>He</option>
+                                    <option value={'Normal'}>Normal</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">模型保存格式</label>
+                                <select
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={saveFormat}
+                                    onChange={(e) => setSaveFormat(e.target.value)}
+                                >
+                                    <option value={'JSON+NPZ'}>JSON+NPZ</option>
+                                    <option value={'HDF5'}>HDF5</option>
+                                    <option value={'ONNX'}>ONNX</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">加速方式</label>
+                                <select
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={accelerationMethod}
+                                    onChange={(e) => setAccelerationMethod(e.target.value)}
+                                >
+                                    <option value={'im2col'}>im2col</option>
+                                    <option value={'CuDNN'} >CuDNN</option>
+                                    <option value={'MKL-DNN'}>MKL-DNN</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">计算资源</label>
+                                <div
+                                    className="flex flex-wrap gap-3 text-gray-700"
 
-                    <button
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-md transition"
-                        onClick={(e) => handleAddExperiment(e)}
-                    >
-                        创建实验
-                    </button>
-                </form>
-            </div>
+                                >
+                                    {['CPU1', 'CPU2', 'GPU1', 'GPU2'].map((res) => (
+                                        <label key={res} className="flex items-center gap-1">
+                                            <input
+                                                type="checkbox"
+                                                checked={computingResource.includes(res)}
+                                                onChange={() => handleCheck(res)}
+                                                className="accent-blue-500"
+                                            />
+                                            {res}
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1 text-gray-700">
+                                    模型选择
+                                </label>
+                                <select
+                                    className="border border-gray-300 rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    value={model?.id}
+                                    onChange={(e) => {
+                                        const newModel = models?.find((item) => {
+                                            return item.id === e.target.value
+                                        })
+                                        setModel(newModel || defaultModel)
+                                    }}
+                                >
+                                    {models?.length &&
+                                        models.map((item) => (
+                                            <option key={item.id} value={item.id}>
+                                                {item.name}
+                                            </option>
+                                        ))}
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">实验备注</label>
+                            <textarea
+                                placeholder="输入实验备注信息"
+                                className="w-full border border-gray-300 rounded-md p-2 h-20 focus:ring-2 focus:ring-blue-500 outline-none"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                            />
+                        </div>
+
+                        {openModalType === OpenModalType.add ? <button
+                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-md transition"
+                            onClick={(e) => handleAddExperiment(e)}
+                        >
+                            创建实验
+                        </button> : <button
+                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-md transition"
+                            onClick={(e) => handleSaveExperimentEdit(e)}
+                        >保存修改</button>}
+                    </form>
+                </div>
+            </Modal>
+
 
             {/* 实验列表 */}
             <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
@@ -389,7 +501,11 @@ export default function Page() {
                                 <div className="flex justify-between items-center">
                                     <h4 className="text-lg font-semibold text-gray-800">{experiment.name}</h4>
                                     <div className="space-x-2">
-                                        <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700">编辑</button>
+                                        <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700" onClick={() => {
+                                            setEditExperiment(experiment)
+                                            handleOpenModal(OpenModalType.edit)
+                                        }
+                                        }>编辑</button>
                                         <button className="px-3 py-1 bg-blue-100 hover:bg-blue-200 rounded-md text-blue-700">查看控制面板</button>
                                         <button className="px-3 py-1 bg-red-100 hover:bg-red-200 rounded-md text-red-700" onClick={() => handleDeleteExperiment(experiment.id)}>删除</button>
                                     </div>
