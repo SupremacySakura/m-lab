@@ -40,3 +40,5 @@ export interface IModel {
     createdAt: string;
     layers: ILayer[];
 }
+
+export type NotificationType = 'success' | 'info' | 'warning' | 'error'

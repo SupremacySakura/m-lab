@@ -1,33 +1,54 @@
 'use client'
+
 import { defaultModel } from '@/app/model/page'
 import { IExperiment, IModel, IProject } from '@/types'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Modal from '@/components/Modal'
+import { useModelStore } from '@/store/useModelStore'
+import { useProjectStore } from '@/store/useProjectStore'
+import { useNotificationStore } from '@/components/Notification/Store/useNotificationStore'
 
 enum OpenModalType {
-    add = 'add',
-    edit = 'edit'
+    Add = 'add',
+    Edit = 'edit'
 }
+
 export default function Page() {
-    const [projects, setProjects] = useState<IProject[]>([])
-    const [models, setModels] = useState<IModel[]>()
+    // 弹窗
+    const { openNotificationWithIcon } = useNotificationStore()
+    // 项目
+    const { projects, setProjects } = useProjectStore()
+    // 模型
+    const { models } = useModelStore()
+    // 当前项目
     const [currentProject, setCurrentProject] = useState<IProject>()
+    // 当前项目id
     const { id } = useParams<{ id: string }>()
-    const [isMounted, setIsMounted] = useState(false)
     const decodedId = decodeURIComponent(id)
+    // 是否已经渲染
+    const [isMounted, setIsMounted] = useState(false)
+    // 弹窗状态
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    // 弹窗模式
     const [openModalType, setOpenModalType] = useState<OpenModalType>()
+    // 弹窗的实验
     const [editExperiment, setEditExperiment] = useState<IExperiment>()
-    const onCloseModal = () => {
+    /**
+     * 关闭弹窗
+     */
+    const handleCloseModal = () => {
         setIsOpen(false)
     }
-
+    /**
+     * 打开弹窗
+     * @param type 
+     */
     const handleOpenModal = (type: OpenModalType) => {
         setOpenModalType(type)
         switch (type) {
-            case OpenModalType.add:
+            case OpenModalType.Add:
                 setExperimentName('')
                 setOptimizer('SGD')
                 setLearningRate(0)
@@ -42,41 +63,44 @@ export default function Page() {
                 setDescription('')
                 setModel(defaultModel)
                 break
-            case OpenModalType.edit:
-                if (editExperiment) {
-                    setExperimentName(editExperiment?.name)
-                    setOptimizer(editExperiment.optimizer)
-                    setLearningRate(editExperiment.learningRate)
-                    setBatchSize(editExperiment.batchSize)
-                    setEpoch(editExperiment.epoch)
-                    setSetUrl(editExperiment.setUrl)
-                    setMultithreading(editExperiment.multithreading)
-                    setWeightInit(editExperiment.weightInit)
-                    setSaveFormat(editExperiment.saveFormat)
-                    setAccelerationMethod(editExperiment.accelerationMethod)
-                    setComputingResource(editExperiment.computingResource)
-                    setDescription(editExperiment.name)
-                    setModel(editExperiment.model)
-                }
+            case OpenModalType.Edit:
+
                 break
         }
         setIsOpen(true)
     }
     // 添加实验
+    // 实验名
     const [experimentName, setExperimentName] = useState<string>('')
+    // 优化器
     const [optimizer, setOptimizer] = useState<string>('SGD')
+    // 学习率
     const [learningRate, setLearningRate] = useState<number>(0)
+    // bacth size
     const [batchSize, setBatchSize] = useState<number>(0)
+    // epoch
     const [epoch, setEpoch] = useState<number>(0)
+    // 数据集路径
     const [setUrl, setSetUrl] = useState<string>('')
+    // 多线程加载
     const [multithreading, setMultithreading] = useState<number>(0)
+    // 权重初始化
     const [weightInit, setWeightInit] = useState<string>('Xavier')
+    // 模型保存格式
     const [saveFormat, setSaveFormat] = useState<string>('JSON+NPZ')
+    // 加速方式
     const [accelerationMethod, setAccelerationMethod] = useState<string>('im2col')
+    // 计算资源
     const [computingResource, setComputingResource] = useState<string[]>([])
+    // 描述
     const [description, setDescription] = useState<string>('')
+    // 模型
     const [model, setModel] = useState<IModel>(defaultModel)
 
+    /**
+     * 选中计算资源
+     * @param value 计算资源
+     */
     const handleCheck = (value: string) => {
         setComputingResource((prev) =>
             prev.includes(value)
@@ -84,7 +108,10 @@ export default function Page() {
                 : [...prev, value] // 选中
         )
     }
-
+    /**
+     * 添加实验
+     * @param e 事件对象
+     */
     const handleAddExperiment = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault()
         const experiment = {
@@ -104,13 +131,11 @@ export default function Page() {
             model,
             createdAt: new Date().toLocaleString()
         }
-        setProjects(prevProjects =>
-            prevProjects.map(project =>
-                project.id === currentProject?.id
-                    ? { ...project, experiments: [...project.experiments, experiment] }
-                    : project
-            )
-        )
+        const newProjects = projects.map(project =>
+            project.id === currentProject?.id
+                ? { ...project, experiments: [...project.experiments, experiment] }
+                : project)
+        setProjects(newProjects)
         setExperimentName('')
         setOptimizer('SGD')
         setLearningRate(0)
@@ -125,8 +150,12 @@ export default function Page() {
         setDescription('')
         setModel(defaultModel)
         setIsOpen(false)
+        openNotificationWithIcon('创建实验成功', '你已经成功创建实验', 'success')
     }
-
+    /**
+     * 保存实验修改
+     * @param e 事件对象
+     */
     const handleSaveExperimentEdit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault()
         const experiment = {
@@ -146,18 +175,16 @@ export default function Page() {
             model,
             createdAt: new Date().toLocaleString()
         }
-        setProjects(prevProjects =>
-            prevProjects.map(project => {
-                if (project.id === currentProject?.id) {
-                    const index = project.experiments.findIndex((item) => item.id === editExperiment?.id)
-                    const newProjectExperiments = [...project.experiments]
-                    newProjectExperiments[index] = experiment
-                    return { ...project, experiments: newProjectExperiments }
-                }
-                return project
+        const newProjects = projects.map(project => {
+            if (project.id === currentProject?.id) {
+                const index = project.experiments.findIndex((item) => item.id === editExperiment?.id)
+                const newProjectExperiments = [...project.experiments]
+                newProjectExperiments[index] = experiment
+                return { ...project, experiments: newProjectExperiments }
             }
-            )
-        )
+            return project
+        })
+        setProjects(newProjects)
         setExperimentName('')
         setOptimizer('SGD')
         setLearningRate(0)
@@ -172,20 +199,28 @@ export default function Page() {
         setDescription('')
         setModel(defaultModel)
         setIsOpen(false)
+        openNotificationWithIcon('修改实验成功', '你已经修改创建实验', 'success')
     }
-
+    /**
+     * 删除实验
+     * @param experimentId 实验id
+     */
     const handleDeleteExperiment = (experimentId: string) => {
-        setProjects(prevProjects =>
-            prevProjects.map(project =>
-                project.id === currentProject?.id
-                    ? {
-                        ...project,
-                        experiments: project.experiments.filter(exp => exp.id !== experimentId),
-                    }
-                    : project
-            )
-        )
+        const newProjects = projects.map(project =>
+            project.id === currentProject?.id
+                ? {
+                    ...project,
+                    experiments: project.experiments.filter(exp => exp.id !== experimentId),
+                }
+                : project)
+        setProjects(newProjects)
+        openNotificationWithIcon('删除实验成功', '你已经成功删除实验', 'success')
     }
+    /**
+     * 上传数据集
+     * @param name 数据集名称 
+     * @param e 事件对象
+     */
     const handleSetTest = (name: string, e: React.ChangeEvent<HTMLInputElement>) => {
         switch (name) {
             case '训练集':
@@ -211,53 +246,56 @@ export default function Page() {
                 break
         }
     }
+    /**
+     * 当前实验修改后映射到全局
+     */
     useEffect(() => {
         if (isMounted) {
-            setProjects(prevProjects =>
-                prevProjects.map(project =>
-                    project.id === currentProject?.id
-                        ? currentProject
-                        : project
-                )
-            )
+            const newProjects = projects.map(project =>
+                project.id === currentProject?.id
+                    ? currentProject
+                    : project)
+            setProjects(newProjects)
         }
     }, [currentProject])
+    /**
+     * 弹窗的实验修改之后映射出来
+     */
     useEffect(() => {
-        if (isMounted) {
-            console.log('projects>>>', projects)
-            localStorage.setItem('projects', JSON.stringify(projects))
+        if (editExperiment) {
+            setExperimentName(editExperiment?.name)
+            setOptimizer(editExperiment.optimizer)
+            setLearningRate(editExperiment.learningRate)
+            setBatchSize(editExperiment.batchSize)
+            setEpoch(editExperiment.epoch)
+            setSetUrl(editExperiment.setUrl)
+            setMultithreading(editExperiment.multithreading)
+            setWeightInit(editExperiment.weightInit)
+            setSaveFormat(editExperiment.saveFormat)
+            setAccelerationMethod(editExperiment.accelerationMethod)
+            setComputingResource(editExperiment.computingResource)
+            setDescription(editExperiment.name)
+            setModel(editExperiment.model)
         }
-    }, [projects])
-
-    useEffect(() => {
-        setIsMounted(true)
-        const oldProjectsJson = localStorage.getItem('projects')
-        if (oldProjectsJson) {
-            const oldProjects = JSON.parse(oldProjectsJson)
-            if (oldProjects?.length) {
-                setProjects(oldProjects)
-            }
-        }
-        const oldModelsJson = localStorage.getItem('models')
-        if (oldModelsJson) {
-            const oldModels = JSON.parse(oldModelsJson)
-            if (oldModels?.length) {
-                setModels(oldModels)
-            }
-        }
-    }, [])
-    useEffect(() => {
-        if (isMounted) {
-            console.log('models>>>', models)
-            localStorage.setItem('models', JSON.stringify(models))
-        }
-    }, [models])
+    }, [editExperiment])
+    /**
+     * 寻找当前项目
+     */
     useEffect(() => {
         if (isMounted) {
             const project = projects?.find((item) => item.id === decodedId)
+            console.log(project)
             setCurrentProject(project)
         }
     }, [projects, id])
+    /**
+     * 初始化
+     */
+    useEffect(() => {
+        setIsMounted(true)
+        const project = projects?.find((item) => item.id === decodedId)
+        setCurrentProject(project)
+    }, [])
     return (
         <div className="max-w-5xl mx-auto p-8 space-y-10 relative">
             {/* 顶部标题 */}
@@ -292,7 +330,7 @@ export default function Page() {
             </div>
 
             <button
-                onClick={() => handleOpenModal(OpenModalType.add)}
+                onClick={() => handleOpenModal(OpenModalType.Add)}
                 className="px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
             >
                 添加实验
@@ -300,7 +338,7 @@ export default function Page() {
 
 
             {/* 实验创建 */}
-            <Modal isOpen={isOpen} onClose={onCloseModal}>
+            <Modal isOpen={isOpen} handleCloseModal={handleCloseModal}>
                 <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
                     <h3 className="text-2xl font-medium text-gray-700">实验创建</h3>
                     <form className="space-y-6">
@@ -477,7 +515,7 @@ export default function Page() {
                             />
                         </div>
 
-                        {openModalType === OpenModalType.add ? <button
+                        {openModalType === OpenModalType.Add ? <button
                             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-md transition"
                             onClick={(e) => handleAddExperiment(e)}
                         >
@@ -503,10 +541,13 @@ export default function Page() {
                                     <div className="space-x-2">
                                         <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700" onClick={() => {
                                             setEditExperiment(experiment)
-                                            handleOpenModal(OpenModalType.edit)
+                                            handleOpenModal(OpenModalType.Edit)
+
                                         }
                                         }>编辑</button>
-                                        <button className="px-3 py-1 bg-blue-100 hover:bg-blue-200 rounded-md text-blue-700">查看控制面板</button>
+                                        <button className="px-3 py-1 bg-blue-100 hover:bg-blue-200 rounded-md text-blue-700">
+                                            <Link href={`/project/edit/${id}/${experiment.id}`}>查看控制面板</Link>
+                                        </button>
                                         <button className="px-3 py-1 bg-red-100 hover:bg-red-200 rounded-md text-red-700" onClick={() => handleDeleteExperiment(experiment.id)}>删除</button>
                                     </div>
                                 </div>

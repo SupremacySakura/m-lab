@@ -1,15 +1,26 @@
 'use client'
+
 import React, { useState } from 'react'
 import Image from 'next/image'
 import LineChart from '@/components/LineChart'
 import yxzqUtils from '@yxzq-web-resource-tools/yxzq-utils-browser'
 import { getAccuracy, getOption } from '@/utils/random'
+
 export default function Page() {
+    // 文件
     const [file, setFile] = useState<File>()
+    // 文件预览
     const [preview, setPreview] = useState<string>()
+    // 识别准确率
     const [accuracy, setAccuracy] = useState<number>()
+    // 菜品类型
     const [dishType, setDishType] = useState<string>()
+    // 模型训练情况
     const [option, setOption] = useState({})
+    /**
+     * 修改图片
+     * @param e 事件对象
+     */
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newFile = e.target.files && e.target.files[0]
         if (newFile) {
@@ -17,6 +28,10 @@ export default function Page() {
             setPreview(URL.createObjectURL(newFile))
         }
     }
+    /**
+     * 开始识别图片
+     * @returns 
+     */
     const handleRecognition = async () => {
         if (!file) {
             alert("请先选择图片！")
@@ -28,23 +43,27 @@ export default function Page() {
             useDate: 'no'
         })
 
-        const result = await fetch('/api/recognition', {
-            method: 'POST',
-            body: JSON.stringify({
-                file: res.filePath
+        try {
+            const result = await fetch('/api/recognition', {
+                method: 'POST',
+                body: JSON.stringify({
+                    file: res.filePath
+                })
             })
-        })
-        const data = await result.json()
-        const { dishType, accuracy } = data.data
-        if (accuracy !== 0) {
-            const accuracy = getAccuracy()
-            setAccuracy(accuracy)
-            const option = getOption()
-            setOption(option)
-        } else {
-            setAccuracy(0)
+            const data = await result.json()
+            const { dishType, accuracy } = data.data
+            if (accuracy !== 0) {
+                const accuracy = getAccuracy()
+                setAccuracy(accuracy)
+                const option = getOption()
+                setOption(option)
+            } else {
+                setAccuracy(0)
+            }
+            setDishType(dishType)
+        } catch (error) {
+            setDishType('识别失败')
         }
-        setDishType(dishType)
     }
     return (
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 p-8 flex flex-col items-center">

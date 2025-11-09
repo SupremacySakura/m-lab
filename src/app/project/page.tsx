@@ -1,42 +1,36 @@
 'use client'
 import { IProject } from '@/types'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
-
+import React, { useState } from 'react'
+import { useProjectStore } from '@/store/useProjectStore'
+import { useNotificationStore } from '@/components/Notification/Store/useNotificationStore'
 export default function Page() {
-  const [projects, setProjects] = useState<IProject[]>([])
+  // 弹窗
+  const { openNotificationWithIcon } = useNotificationStore()
+  // 项目
+  const { projects, setProjects } = useProjectStore()
+  // 项目名称
   const [projectName, setProjectName] = useState<string>('')
+  // 项目描述
   const [projectDescription, setProjectDescription] = useState<string>('')
-  const [isMounted, setIsMounted] = useState(false)
+  /**
+   * 新增项目
+   * @param e 事件对象
+   */
   const handleAddProject = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
     const newProject: IProject = {
-      id: Date.now().toLocaleString(),
+      id: Date.now().toString(),
       name: projectName,
       description: projectDescription,
       createdAt: new Date().toLocaleString(),
       experiments: []
     }
-    setProjects(prev => [...prev, newProject])
+    setProjects([...projects, newProject])
     setProjectName('')
     setProjectDescription('')
+    openNotificationWithIcon('创建项目成功', '你已经成功创建项目', 'success')
   }
-  useEffect(() => {
-    if (isMounted) {
-      console.log('projects>>>', projects)
-      localStorage.setItem('projects', JSON.stringify(projects))
-    }
-  }, [projects])
-  useEffect(() => {
-    setIsMounted(true)
-    const oldProjectsJson = localStorage.getItem('projects')
-    if (oldProjectsJson) {
-      const oldProjects = JSON.parse(oldProjectsJson)
-      if (oldProjects?.length) {
-        setProjects(oldProjects)
-      }
-    }
-  }, [])
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-10">
       {/* 页面标题 */}
