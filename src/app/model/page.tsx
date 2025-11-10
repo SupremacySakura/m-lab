@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ILayer, IModel } from '@/types'
 import { useModelStore } from '@/store/useModelStore'
 import { useNotificationStore } from '@/components/Notification/Store/useNotificationStore'
-
+import { Button, Space } from 'antd'
 /**
  * 可选层
  */
@@ -69,6 +69,16 @@ export default function Page() {
     setCurrentLayers(prev => prev.filter(l => l.id !== ILayerId))
   }
   /**
+   * 开始创建模型
+   */
+  const handleStartAdd = () => {
+    setModelName('')
+    setModelDescription('')
+    setCurrentLayers([])
+    setMode(FormMode.Add)
+    setCurrentModelId('')
+  }
+  /**
    * 创建模型
    * @returns 
    */
@@ -86,6 +96,20 @@ export default function Page() {
     openNotificationWithIcon('创建模型成功', '你已经成功创建模型', 'success')
   }
   /**
+   * 开始修改选中模型
+   * @param id 模型id
+   */
+  const handleStartEdit = (id: string) => {
+    const model = models.find((item) => item.id === id)
+    if (model) {
+      setModelName(model.name)
+      setModelDescription(model.description)
+      setCurrentLayers(model.layers)
+      setMode(FormMode.Edit)
+      setCurrentModelId(id)
+    }
+  }
+  /**
    * 修改模型
    */
   const handleEditModel = () => {
@@ -99,21 +123,17 @@ export default function Page() {
     const newModels = [...models.filter((item) => item.id !== currentModelId), newModel]
     setModels(newModels)
     handleCloseForm()
-    openNotificationWithIcon('修改模型成功', '你已经成功修改模型', 'success')
+    openNotificationWithIcon('修改模型成功', `你已经成功修改模型:${modelName}`, 'success')
   }
   /**
-   * 开始修改选中层
-   * @param id 层id
+   * 删除模型
+   * @param id 模型id
    */
-  const handleStartEdit = (id: string) => {
-    const model = models.find((item) => item.id === id)
-    if (model) {
-      setModelName(model.name)
-      setModelDescription(model.description)
-      setCurrentLayers(model.layers)
-      setMode(FormMode.Edit)
-      setCurrentModelId(id)
-    }
+  const handleDeleteModel = (id: string) => {
+    const deleteModel = models.find((item) => item.id === id)
+    const newModels = models.filter((item) => item.id !== id)
+    setModels(newModels)
+    openNotificationWithIcon('删除模型成功', `你已经成功删除模型:${deleteModel?.name}`, 'success')
   }
   /**
    * 修改模式为无状态
@@ -130,12 +150,12 @@ export default function Page() {
       {/* Header */}
       <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">模型管理</h1>
-        <button
-          onClick={() => setMode(FormMode.Add)}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600 transition"
+        {mode === FormMode.None && (<Button
+          onClick={() => handleStartAdd()}
+          type='primary'
         >
           创建新模型
-        </button>
+        </Button>)}
       </div>
 
       {/* 模型列表 */}
@@ -165,12 +185,22 @@ export default function Page() {
                     <span>层数: {model.layers.length}</span>
                   </div>
                   <div className="text-right">
-                    <button
-                      onClick={() => handleStartEdit(model.id)}
-                      className="text-blue-500 border border-blue-400 px-3 py-1 rounded-md text-sm hover:bg-blue-50 transition"
-                    >
-                      配置
-                    </button>
+                    <Space>
+                      <Button
+                        color='danger'
+                        variant="solid"
+                        onClick={() => handleDeleteModel(model.id)}
+                      >
+                        删除
+                      </Button>
+                      <Button
+                        onClick={() => handleStartEdit(model.id)}
+                        color='primary'
+                        variant='solid'
+                      >
+                        配置
+                      </Button>
+                    </Space>
                   </div>
                 </div>
               ))}
@@ -184,12 +214,11 @@ export default function Page() {
         <div className="bg-white shadow-sm rounded-lg p-6">
           <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
             <h2 className="text-xl font-semibold text-gray-800">创建新模型</h2>
-            <button
+            <Button
               onClick={() => setMode(FormMode.None)}
-              className="text-gray-500 hover:text-gray-800 transition text-sm"
             >
               返回列表
-            </button>
+            </Button>
           </div>
 
           <div className="space-y-4">
@@ -228,12 +257,14 @@ export default function Page() {
                   >
                     <h4 className="font-medium text-gray-800">{ILayer.type}</h4>
                     <p className="text-sm text-gray-500 mb-2">{ILayer.description}</p>
-                    <button
+                    <Button
                       onClick={() => handleAddLayer(ILayer.id)}
-                      className="text-green-600 text-xs border border-green-200 px-2 py-1 rounded-md hover:bg-green-50"
+                      color='green'
+                      variant='solid'
+                      size='small'
                     >
                       添加
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -284,25 +315,25 @@ export default function Page() {
 
           {/* 底部操作 */}
           <div className="flex justify-end gap-3 mt-6">
-            <button
+            <Button
               onClick={() => handleCloseForm()}
-              className="border border-gray-300 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-50"
+              type='default'
             >
               取消
-            </button>
+            </Button>
 
-            {mode === FormMode.Add && (<button
+            {mode === FormMode.Add && (<Button
               onClick={handleCreateModel}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              type='primary'
             >
               创建模型
-            </button>)}
-            {mode === FormMode.Edit && (<button
+            </Button>)}
+            {mode === FormMode.Edit && (<Button
               onClick={handleEditModel}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              type='primary'
             >
               保存修改
-            </button>)}
+            </Button>)}
           </div>
         </div>
       )}

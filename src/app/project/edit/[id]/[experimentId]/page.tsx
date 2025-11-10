@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { getTestAccuracyOption, getTestLossOption, getTrainAccuracyOption, getTrainLossOption, getValAccuracyOption, getValLossOption } from '@/utils/random'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useNotificationStore } from '@/components/Notification/Store/useNotificationStore'
+import { Button } from 'antd'
 
 // 定时器
 let interval: number | NodeJS.Timeout = -1
@@ -117,11 +118,9 @@ export default function Page() {
             {/* 顶部标题栏 */}
             <div className="flex justify-between items-center mb-8 border-b border-blue-200 pb-3">
                 <h2 className="text-2xl font-bold text-blue-700">{experiment?.name}</h2>
-                <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-md"
-                >
-                    <Link href={`/project/edit/${id}`}>返回实验列表</Link>
-                </button>
+                <Link href={`/project/edit/${id}`}>
+                    <Button> 返回实验列表</Button>
+                </Link>
             </div>
 
             {/* 实验控制面板 */}
@@ -147,19 +146,26 @@ export default function Page() {
 
                 {/* 控制按钮 */}
                 <div className="flex gap-4">
-                    <button
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-sm"
-                        onClick={() => handleStart()}>
+                    <Button
+                        color='blue'
+                        variant='filled'
+                        onClick={() => handleStart()}
+                    >
                         开始
-                    </button>
-                    <button
-                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition shadow-sm"
-                        onClick={() => handleStop()}>
+                    </Button>
+                    <Button
+                        color='danger'
+                        variant='filled'
+                        onClick={() => handleStop()}
+                    >
                         停止
-                    </button>
-                    <button className="px-4 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition shadow-sm">
+                    </Button>
+                    <Button
+                        color='geekblue'
+                        variant='filled'
+                    >
                         下载结果
-                    </button>
+                    </Button>
                 </div>
             </div>
 

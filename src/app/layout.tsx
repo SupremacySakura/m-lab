@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import '@ant-design/v5-patch-for-react-19'
 import NavBar from "@/components/NavBar"
 import { AntdRegistry } from '@ant-design/nextjs-registry'
 import Notification from '@/components/Notification'

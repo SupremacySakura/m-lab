@@ -4,6 +4,7 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useNotificationStore } from '@/components/Notification/Store/useNotificationStore'
+import { Button } from 'antd'
 export default function Page() {
   // 弹窗
   const { openNotificationWithIcon } = useNotificationStore()
@@ -17,7 +18,7 @@ export default function Page() {
    * 新增项目
    * @param e 事件对象
    */
-  const handleAddProject = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleAddProject = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault()
     const newProject: IProject = {
       id: Date.now().toString(),
@@ -47,21 +48,21 @@ export default function Page() {
             placeholder="项目名称"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
-            className="w-full sm:w-1/3 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            className="h-8 w-full sm:w-1/3 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
           />
           <input
             type="text"
             placeholder="项目描述"
             value={projectDescription}
             onChange={(e) => setProjectDescription(e.target.value)}
-            className="w-full sm:w-1/2 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            className="h-8 w-full sm:w-1/2 border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
           />
-          <button
+          <Button
             onClick={(e) => handleAddProject(e)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-md transition-colors"
+            type='primary'
           >
             添加项目
-          </button>
+          </Button>
         </form>
       </div>
 
@@ -77,11 +78,15 @@ export default function Page() {
               >
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-lg font-semibold text-gray-800">{item.name}</span>
+
                   <Link
                     href={`/project/edit/${item.id}`}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                   >
-                    配置
+                    <Button
+                      type='primary'
+                    >
+                      配置
+                    </Button>
                   </Link>
                 </div>
                 <p className="text-gray-600 mb-2">{item.description || '暂无描述'}</p>
@@ -96,7 +101,7 @@ export default function Page() {
           <p className="text-gray-500 text-center py-10">暂无项目，请先添加项目。</p>
         )}
       </div>
-    </div>
+    </div >
 
   )
 }

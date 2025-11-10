@@ -5,7 +5,7 @@ import { IExperiment, IModel, IProject } from '@/types'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import Modal from '@/components/Modal'
+import { Button, Modal } from 'antd'
 import { useModelStore } from '@/store/useModelStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useNotificationStore } from '@/components/Notification/Store/useNotificationStore'
@@ -112,7 +112,7 @@ export default function Page() {
      * 添加实验
      * @param e 事件对象
      */
-    const handleAddExperiment = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const handleAddExperiment = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         e.preventDefault()
         const experiment = {
             id: Date.now().toString(),
@@ -156,7 +156,7 @@ export default function Page() {
      * 保存实验修改
      * @param e 事件对象
      */
-    const handleSaveExperimentEdit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const handleSaveExperimentEdit = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         e.preventDefault()
         const experiment = {
             id: Date.now().toString(),
@@ -303,9 +303,9 @@ export default function Page() {
                 <h1 className="text-3xl font-semibold text-gray-800">
                     项目配置 - {currentProject?.name}
                 </h1>
-                <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-md transition">
-                    <Link href={'/project'}>返回项目列表</Link>
-                </button>
+                <Link href={'/project'}>
+                    <Button>返回项目列表</Button>
+                </Link>
             </div>
 
             {/* 数据集上传 */}
@@ -329,16 +329,16 @@ export default function Page() {
                 </div>
             </div>
 
-            <button
+            <Button
                 onClick={() => handleOpenModal(OpenModalType.Add)}
-                className="px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+                type='primary'
             >
                 添加实验
-            </button>
+            </Button>
 
 
             {/* 实验创建 */}
-            <Modal isOpen={isOpen} handleCloseModal={handleCloseModal}>
+            <Modal open={isOpen} onCancel={handleCloseModal}>
                 <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
                     <h3 className="text-2xl font-medium text-gray-700">实验创建</h3>
                     <form className="space-y-6">
@@ -515,15 +515,21 @@ export default function Page() {
                             />
                         </div>
 
-                        {openModalType === OpenModalType.Add ? <button
-                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-md transition"
-                            onClick={(e) => handleAddExperiment(e)}
-                        >
-                            创建实验
-                        </button> : <button
-                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-md transition"
-                            onClick={(e) => handleSaveExperimentEdit(e)}
-                        >保存修改</button>}
+                        {openModalType === OpenModalType.Add ?
+                            (<Button
+                                type='primary'
+                                onClick={(e) => handleAddExperiment(e)}
+                            >
+                                创建实验
+                            </Button>)
+                            :
+                            (<Button
+                                type='primary'
+                                onClick={(e) => handleSaveExperimentEdit(e)}
+                            >
+                                保存修改
+                            </Button>)
+                        }
                     </form>
                 </div>
             </Modal>
@@ -539,16 +545,28 @@ export default function Page() {
                                 <div className="flex justify-between items-center">
                                     <h4 className="text-lg font-semibold text-gray-800">{experiment.name}</h4>
                                     <div className="space-x-2">
-                                        <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700" onClick={() => {
-                                            setEditExperiment(experiment)
-                                            handleOpenModal(OpenModalType.Edit)
+                                        <Button
+                                            color='default'
+                                            variant='filled'
+                                            onClick={() => {
+                                                setEditExperiment(experiment)
+                                                handleOpenModal(OpenModalType.Edit)
+                                            }
+                                            }>编辑
+                                        </Button>
+                                        <Link href={`/project/edit/${id}/${experiment.id}`}>
+                                            <Button
+                                                color='blue'
+                                                variant='filled'
+                                            >查看控制面板</Button>
+                                        </Link>
 
-                                        }
-                                        }>编辑</button>
-                                        <button className="px-3 py-1 bg-blue-100 hover:bg-blue-200 rounded-md text-blue-700">
-                                            <Link href={`/project/edit/${id}/${experiment.id}`}>查看控制面板</Link>
-                                        </button>
-                                        <button className="px-3 py-1 bg-red-100 hover:bg-red-200 rounded-md text-red-700" onClick={() => handleDeleteExperiment(experiment.id)}>删除</button>
+                                        <Button
+                                            color='danger'
+                                            variant='filled'
+                                            onClick={() => handleDeleteExperiment(experiment.id)}>
+                                            删除
+                                        </Button>
                                     </div>
                                 </div>
                                 <p className="text-gray-600 mt-2">{experiment.description}</p>
