@@ -41,4 +41,11 @@ export interface IModel {
     layers: ILayer[];
 }
 
+export interface IUser {
+    id: string
+    username: string
+    password?: string
+    avatar: string
+  }
+
 export type NotificationType = 'success' | 'info' | 'warning' | 'error'
