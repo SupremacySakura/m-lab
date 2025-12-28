@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react'
 import * as echarts from 'echarts'
 
-export default function LineChart({ option }: { option: any }) {
+export default function LineChart({ option, className = "w-full h-[400px]" }: { option: any, className?: string }) {
     const chartRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -25,5 +25,5 @@ export default function LineChart({ option }: { option: any }) {
         }
     }, [option])
 
-    return <div ref={chartRef} className="w-full h-[400px]" />
+    return <div ref={chartRef} className={className} />
 }

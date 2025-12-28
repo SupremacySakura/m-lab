@@ -8,7 +8,7 @@ const openai_tongyi_qwen_plus = new OpenAI(
 
 export const recognition = async (image: string) => {
     const completion = await openai_tongyi_qwen_plus.chat.completions.create({
-        model: 'qwen3-vl-plus',
+        model: 'qwen3-vl-flash',
 
         messages: [
             {

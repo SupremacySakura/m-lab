@@ -6,6 +6,7 @@ export const POST = async (request: NextRequest) => {
         return NextResponse.json({ error: "缺少有效文件" }, { status: 400 })
     }
     const result = await recognition(file)
+    await new Promise(resolve => setTimeout(resolve, 3000))
     return NextResponse.json({
         code: 200,
         message: '成功',

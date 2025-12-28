@@ -297,66 +297,108 @@ export default function Page() {
         setCurrentProject(project)
     }, [])
     return (
-        <div className="max-w-5xl mx-auto p-8 space-y-10 relative">
+        <div className="min-h-screen bg-background p-6 md:p-8 space-y-8 relative">
             {/* 顶部标题 */}
-            <div className="flex items-center justify-between border-b pb-4">
-                <h1 className="text-3xl font-semibold text-gray-800">
-                    项目配置 - {currentProject?.name}
-                </h1>
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="bg-primary/10 p-3 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-primary">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-100">
+                            项目配置
+                        </h1>
+                        <p className="text-gray-400 mt-1">{currentProject?.name}</p>
+                    </div>
+                </div>
                 <Link href={'/project'}>
-                    <Button>返回项目列表</Button>
+                    <Button className="border-border bg-card text-gray-300 hover:text-primary hover:border-primary">
+                        返回项目列表
+                    </Button>
                 </Link>
             </div>
 
             {/* 数据集上传 */}
-            <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
-                <h3 className="text-2xl font-medium text-gray-700">数据集上传</h3>
+            <div className="max-w-7xl mx-auto bg-card border border-border rounded-xl p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-200 mb-6 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2 text-primary">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+                    </svg>
+                    数据集管理
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[
                         ['训练集', currentProject?.trainingSet],
                         ['验证集', currentProject?.validationSet],
                         ['测试集', currentProject?.testSet],
                     ].map(([title, setName]) => (
-                        <div key={title} className="border border-gray-200 p-4 rounded-lg hover:shadow-md transition">
-                            <h4 className="font-semibold mb-2 text-gray-800">{title}</h4>
-                            <label className="cursor-pointer block text-center p-3 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50">
+                        <div key={title} className="bg-[#0f1623] border border-border p-5 rounded-lg hover:border-primary/50 transition-all group">
+                            <h4 className="font-medium mb-3 text-gray-300 flex justify-between">
+                                {title}
+                                {setName && <span className="text-xs text-green-500 bg-green-500/10 px-2 py-0.5 rounded">已上传</span>}
+                            </h4>
+                            <label className="cursor-pointer flex flex-col items-center justify-center h-32 border-2 border-dashed border-border rounded-lg hover:bg-card hover:border-primary transition-all group-hover:border-primary/30">
                                 <input type="file" accept=".zip,.tar,.gz" className="hidden" onChange={(e) => handleSetTest(title || '训练集', e)} />
-                                <div className="text-blue-600 font-medium">选择文件</div>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-gray-500 mb-2 group-hover:text-primary">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                                </svg>
+                                <span className="text-sm text-gray-400 group-hover:text-gray-200">点击上传文件</span>
                             </label>
-                            <p className="text-sm text-gray-500 mt-2">{setName}</p>
+                            <p className="text-xs text-gray-500 mt-3 truncate h-5">
+                                {setName || '暂无文件'}
+                            </p>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <Button
-                onClick={() => handleOpenModal(OpenModalType.Add)}
-                type='primary'
-            >
-                添加实验
-            </Button>
+            <div className="max-w-7xl mx-auto flex justify-end">
+                <Button
+                    onClick={() => handleOpenModal(OpenModalType.Add)}
+                    type='primary'
+                    className="h-10 px-6 !bg-primary hover:!bg-blue-600 border-none shadow-lg shadow-blue-500/20"
+                    icon={
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                    }
+                >
+                    新建实验任务
+                </Button>
+            </div>
 
 
             {/* 实验创建 */}
-            <Modal open={isOpen} onCancel={handleCloseModal}>
-                <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
-                    <h3 className="text-2xl font-medium text-gray-700">实验创建</h3>
+            <Modal open={isOpen} onCancel={handleCloseModal} footer={null} width={800} className="dark-theme-modal">
+                <div className="bg-card rounded-xl shadow-none p-2 space-y-6">
+                    <div className="flex items-center gap-3 border-b border-border pb-4 mb-4">
+                        <div className="bg-primary/10 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-primary">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                            </svg>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-200">
+                            {openModalType === OpenModalType.Add ? '创建新实验' : '编辑实验配置'}
+                        </h3>
+                    </div>
                     <form className="space-y-6">
                         <div className="grid md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">实验名称</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">实验名称</label>
                                 <input
                                     type="text"
                                     placeholder="输入实验名称"
-                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-[#0B1121] border border-border rounded-md p-2 text-gray-200 placeholder:text-gray-500 focus:ring-2 focus:ring-primary outline-none"
                                     value={experimentName}
                                     onChange={(e) => setExperimentName(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">优化器</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">优化器</label>
                                 <select
-                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-[#0B1121] border border-border rounded-md p-2 text-gray-200 focus:ring-2 focus:ring-primary outline-none"
                                     value={optimizer}
                                     onChange={(e) => setOptimizer(e.target.value)}
                                 >
@@ -369,32 +411,32 @@ export default function Page() {
 
                         <div className="grid md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">学习率</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">学习率</label>
                                 <input
                                     type="number"
                                     step="0.00001"
                                     min="0"
-                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-[#0B1121] border border-border rounded-md p-2 text-gray-200 focus:ring-2 focus:ring-primary outline-none"
                                     value={learningRate}
                                     onChange={(e) => setLearningRate(Number(e.target.value))}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">Batch Size</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">Batch Size</label>
                                 <input
                                     type="number"
                                     min="1"
-                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-[#0B1121] border border-border rounded-md p-2 text-gray-200 focus:ring-2 focus:ring-primary outline-none"
                                     value={batchSize}
                                     onChange={(e) => setBatchSize(Number(e.target.value))}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">Epoch</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">Epoch</label>
                                 <input
                                     type="number"
                                     min="1"
-                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-[#0B1121] border border-border rounded-md p-2 text-gray-200 focus:ring-2 focus:ring-primary outline-none"
                                     value={epoch}
                                     onChange={(e) => setEpoch(Number(e.target.value))}
                                 />
@@ -403,21 +445,21 @@ export default function Page() {
 
                         <div className="grid md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">数据集路径</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">数据集路径</label>
                                 <input
                                     type="text"
                                     placeholder="输入数据集路径"
-                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-[#0B1121] border border-border rounded-md p-2 text-gray-200 placeholder:text-gray-500 focus:ring-2 focus:ring-primary outline-none"
                                     value={setUrl}
                                     onChange={(e) => setSetUrl(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">多线程加载</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">多线程加载</label>
                                 <input
                                     type="number"
                                     min="1"
-                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-[#0B1121] border border-border rounded-md p-2 text-gray-200 focus:ring-2 focus:ring-primary outline-none"
                                     value={multithreading}
                                     onChange={(e) => setMultithreading(Number(e.target.value))}
                                 />
@@ -426,9 +468,9 @@ export default function Page() {
 
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">权重初始化</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">权重初始化</label>
                                 <select
-                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-[#0B1121] border border-border rounded-md p-2 text-gray-200 focus:ring-2 focus:ring-primary outline-none"
                                     value={weightInit}
                                     onChange={(e) => setWeightInit(e.target.value)}
                                 >
@@ -438,9 +480,9 @@ export default function Page() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">模型保存格式</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">模型保存格式</label>
                                 <select
-                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-[#0B1121] border border-border rounded-md p-2 text-gray-200 focus:ring-2 focus:ring-primary outline-none"
                                     value={saveFormat}
                                     onChange={(e) => setSaveFormat(e.target.value)}
                                 >
@@ -450,9 +492,9 @@ export default function Page() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">加速方式</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">加速方式</label>
                                 <select
-                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full bg-[#0B1121] border border-border rounded-md p-2 text-gray-200 focus:ring-2 focus:ring-primary outline-none"
                                     value={accelerationMethod}
                                     onChange={(e) => setAccelerationMethod(e.target.value)}
                                 >
@@ -462,9 +504,9 @@ export default function Page() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">计算资源</label>
+                                <label className="block text-sm font-medium mb-1 text-gray-300">计算资源</label>
                                 <div
-                                    className="flex flex-wrap gap-3 text-gray-700"
+                                    className="flex flex-wrap gap-3 text-gray-300"
 
                                 >
                                     {['CPU1', 'CPU2', 'GPU1', 'GPU2'].map((res) => (
@@ -473,7 +515,7 @@ export default function Page() {
                                                 type="checkbox"
                                                 checked={computingResource.includes(res)}
                                                 onChange={() => handleCheck(res)}
-                                                className="accent-blue-500"
+                                                className="accent-primary"
                                             />
                                             {res}
                                         </label>
@@ -481,11 +523,11 @@ export default function Page() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1 text-gray-700">
+                                <label className="block text-sm font-medium mb-1 text-gray-300">
                                     模型选择
                                 </label>
                                 <select
-                                    className="border border-gray-300 rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="bg-[#0B1121] border border-border rounded-lg p-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
                                     value={model?.id}
                                     onChange={(e) => {
                                         const newModel = models?.find((item) => {
@@ -506,10 +548,10 @@ export default function Page() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">实验备注</label>
+                            <label className="block text-sm font-medium mb-1 text-gray-300">实验备注</label>
                             <textarea
                                 placeholder="输入实验备注信息"
-                                className="w-full border border-gray-300 rounded-md p-2 h-20 focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full bg-[#0B1121] border border-border rounded-md p-2 h-20 text-gray-200 placeholder:text-gray-500 focus:ring-2 focus:ring-primary outline-none"
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                             />
@@ -536,52 +578,99 @@ export default function Page() {
 
 
             {/* 实验列表 */}
-            <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                <h3 className="text-2xl font-medium text-gray-700">现有实验</h3>
-                {currentProject?.experiments.length ? (
-                    <ul className="space-y-4">
-                        {currentProject.experiments.map((experiment) => (
-                            <li key={experiment.id} className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                                <div className="flex justify-between items-center">
-                                    <h4 className="text-lg font-semibold text-gray-800">{experiment.name}</h4>
-                                    <div className="space-x-2">
-                                        <Button
-                                            color='default'
-                                            variant='filled'
-                                            onClick={() => {
-                                                setEditExperiment(experiment)
-                                                handleOpenModal(OpenModalType.Edit)
-                                            }
-                                            }>编辑
-                                        </Button>
-                                        <Link href={`/project/edit/${id}/${experiment.id}`}>
-                                            <Button
-                                                color='blue'
-                                                variant='filled'
-                                            >查看控制面板</Button>
-                                        </Link>
+            <div className="max-w-7xl mx-auto">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-semibold text-gray-200 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2 text-primary">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                        </svg>
+                        现有实验
+                        <span className="ml-3 text-sm font-normal text-gray-500 bg-border/50 px-2 py-0.5 rounded-full">
+                            {currentProject?.experiments.length || 0}
+                        </span>
+                    </h2>
+                </div>
 
-                                        <Button
-                                            color='danger'
-                                            variant='filled'
-                                            onClick={() => handleDeleteExperiment(experiment.id)}>
-                                            删除
-                                        </Button>
+                {currentProject?.experiments.length ? (
+                    <ul className="grid grid-cols-1 gap-4">
+                        {currentProject.experiments.map((experiment) => (
+                            <li key={experiment.id} className="bg-card border border-border rounded-xl p-6 shadow-sm hover:border-primary/50 transition-all duration-300 flex flex-col md:flex-row justify-between gap-6 group">
+                                {/* Details */}
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h4 className="text-lg font-bold text-gray-200 group-hover:text-primary transition-colors">{experiment.name}</h4>
+                                        <span className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                            {experiment.model.name}
+                                        </span>
+                                    </div>
+                                    <p className="text-gray-400 text-sm line-clamp-2 mb-4">{experiment.description || '暂无描述'}</p>
+
+                                    <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                            {experiment.optimizer}
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                            LR: {experiment.learningRate}
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                            Epoch: {experiment.epoch}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 ml-auto md:ml-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                            </svg>
+                                            {experiment.createdAt}
+                                        </div>
                                     </div>
                                 </div>
-                                <p className="text-gray-600 mt-2">{experiment.description}</p>
-                                <div className="text-sm text-gray-500 mt-1">
-                                    <span className="mr-4">创建时间: {experiment.createdAt}</span>
-                                    <span>模型类型: {experiment.model.name}</span>
+
+                                {/* Actions */}
+                                <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6">
+                                    <Button
+                                        type='text'
+                                        onClick={() => {
+                                            setEditExperiment(experiment)
+                                            handleOpenModal(OpenModalType.Edit)
+                                        }}
+                                        className="text-gray-400 hover:text-gray-200"
+                                    >
+                                        编辑
+                                    </Button>
+                                    <Button
+                                        type='text'
+                                        danger
+                                        onClick={() => handleDeleteExperiment(experiment.id)}
+                                        className="text-gray-400 hover:text-red-500"
+                                    >
+                                        删除
+                                    </Button>
+                                    <Link href={`/project/edit/${id}/${experiment.id}`}>
+                                        <Button
+                                            type='primary'
+                                            className="bg-primary hover:bg-blue-600 border-none shadow-md shadow-blue-500/20"
+                                        >
+                                            进入控制台
+                                        </Button>
+                                    </Link>
                                 </div>
                             </li>
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-gray-500">该项目暂无实验，请重新创建实验。</p>
+                    <div className="flex flex-col items-center justify-center py-20 bg-card border border-border rounded-xl border-dashed">
+                        <div className="bg-[#0f1623] p-4 rounded-full mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-gray-600">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                            </svg>
+                        </div>
+                        <p className="text-gray-400 text-lg font-medium">暂无实验</p>
+                        <p className="text-gray-600 text-sm mt-1">请点击右上方按钮创建您的第一个实验</p>
+                    </div>
                 )}
             </div>
         </div>
-
     )
 }

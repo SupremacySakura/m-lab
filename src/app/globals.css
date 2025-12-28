@@ -1,22 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Dark theme by default matching the reference */
+  --background: #0B1121; /* Deep dark blue background */
+  --foreground: #E2E8F0; /* Light text */
+  --card-bg: #151E32; /* Slightly lighter for cards */
+  --primary: #3B82F6; /* Blue accent */
+  --border: #1E293B; /* Dark border */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card-bg);
+  --color-primary: var(--primary);
+  --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@media (prefers-color-scheme: light) {
+  /* Optional: Keep light mode logic or force dark if requested. 
+     The user asked to match the website style which is dark. 
+     I will keep the root as default (dark) and maybe define light variables here if needed, 
+     but for now I'll ensure the default is the requested dark style. */
 }
 
 body {

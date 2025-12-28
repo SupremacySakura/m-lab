@@ -1,30 +1,56 @@
 export const getOption = () => {
   const lossData = [];
-  let loss = 0.8;  // 从0.8开始
-  for (let i = 0; i < 7; i++) {
-    loss -= parseFloat((Math.random() * 0.1).toFixed(2));  // 每次减少一个0.1内的随机数
-    if (loss < 0.2) loss = 0.2;  // 确保损失值不小于0.2
-    lossData.push(parseFloat(loss.toFixed(2)));
+  // 模拟损失值：初始范围可能很大(几百)也可能很小(几)，呈下降趋势，前快后慢
+  let loss = Math.random() > 0.5 ? Math.random() * 200 + 50 : Math.random() * 10 + 2;
+
+  for (let i = 0; i < 50; i++) {
+    // 指数衰减模拟"前快后慢"
+    // 衰减系数 0.85 ~ 0.95
+    const decay = 0.85 + Math.random() * 0.1;
+    loss *= decay;
+
+    // 确保不小于0
+    if (loss < 0.001) loss = Math.random() * 0.001;
+
+    lossData.push(parseFloat(loss.toFixed(4)));
   }
+
   const accuracyData = [];
-  let accuracy = 60;  // 从60开始
-  for (let i = 0; i < 7; i++) {
-    accuracy += Math.floor(Math.random() * 5);  // 每次增加0到5之间的随机数
-    if (accuracy > 100) accuracy = 100;  // 确保准确率不超过100%
-    accuracyData.push(accuracy);
+  // 准确率：0-100 缓慢上升
+  let accuracy = Math.random() * 10; // 从低准确率开始
+
+  for (let i = 0; i < 50; i++) {
+    // 每次增加一定数值，随着准确率提高，增加幅度变小（模拟收敛）
+    const remaining = 100 - accuracy;
+    const increase = Math.random() * (remaining * 0.1) + 0.1;
+    accuracy += increase;
+
+    if (accuracy > 100) accuracy = 100;
+    accuracyData.push(parseFloat(accuracy.toFixed(2)));
   }
 
   const option = {
     title: {
       text: '模型训练过程可视化',
-      left: 'center'
+      left: 'center',
+      textStyle: {
+        color: '#e2e8f0'
+      }
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      backgroundColor: 'rgba(15, 22, 35, 0.9)',
+      borderColor: '#1e293b',
+      textStyle: {
+        color: '#e2e8f0'
+      }
     },
     legend: {
       data: ['训练损失', '模型准确率'],
-      bottom: 0
+      bottom: 0,
+      textStyle: {
+        color: '#94a3b8'
+      }
     },
     grid: {
       top: 60,
@@ -35,26 +61,50 @@ export const getOption = () => {
     xAxis: {
       type: 'category',
       name: '训练轮次',
-      data: ['第1轮', '第2轮', '第3轮', '第4轮', '第5轮', '第6轮', '第7轮']
+      nameTextStyle: {
+        color: '#94a3b8'
+      },
+      data: Array.from({ length: 50 }, (_, i) => `第${i + 1}轮`),
+      axisLabel: {
+        color: '#94a3b8'
+      },
+      axisLine: {
+        lineStyle: {
+          color: '#334155'
+        }
+      }
     },
     yAxis: [
       {
         type: 'value',
         name: '损失值',
+        nameTextStyle: {
+          color: '#94a3b8'
+        },
         position: 'left',
         min: 0,
-        max: 1,
         axisLine: { lineStyle: { color: '#e67e22' } },
-        axisLabel: { formatter: '{value}' }
+        axisLabel: { formatter: '{value}', color: '#94a3b8' },
+        splitLine: {
+          lineStyle: {
+            color: '#1e293b'
+          }
+        }
       },
       {
         type: 'value',
         name: '准确率(%)',
+        nameTextStyle: {
+          color: '#94a3b8'
+        },
         position: 'right',
         min: 0,
         max: 100,
         axisLine: { lineStyle: { color: '#4a6fa5' } },
-        axisLabel: { formatter: '{value}%' }
+        axisLabel: { formatter: '{value}%', color: '#94a3b8' },
+        splitLine: {
+          show: false
+        }
       }
     ],
     series: [
@@ -114,29 +164,29 @@ const baseLineOption = (title: string, data: number[], color: string, maxY: numb
   title: {
     text: title,
     left: 'center',
-    textStyle: { color: '#2563eb', fontSize: 14, fontWeight: 'bold' },
+    textStyle: { color: '#60a5fa', fontSize: 14, fontWeight: 'bold' },
   },
   tooltip: {
     trigger: 'axis',
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderColor: '#93c5fd',
+    backgroundColor: 'rgba(15, 22, 35, 0.9)',
+    borderColor: '#1e293b',
     borderWidth: 1,
-    textStyle: { color: '#1e3a8a' },
+    textStyle: { color: '#e2e8f0' },
   },
   grid: { left: 40, right: 20, top: 40, bottom: 40 },
   xAxis: {
     type: 'category',
     data: Array.from({ length: data.length }, (_, i) => `Epoch ${i + 1}`),
     boundaryGap: false,
-    axisLine: { lineStyle: { color: '#93c5fd' } },
-    axisLabel: { color: '#1e3a8a' },
+    axisLine: { lineStyle: { color: '#334155' } },
+    axisLabel: { color: '#94a3b8' },
   },
   yAxis: {
     type: 'value',
     max: maxY,
-    axisLine: { lineStyle: { color: '#93c5fd' } },
-    splitLine: { lineStyle: { color: '#e5e7eb' } },
-    axisLabel: { color: '#1e3a8a' },
+    axisLine: { lineStyle: { color: '#334155' } },
+    splitLine: { lineStyle: { color: '#1e293b' } },
+    axisLabel: { color: '#94a3b8' },
   },
   series: [
     {
