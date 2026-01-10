@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import LineChart from '@/components/LineChart'
 import Link from 'next/link'
-import { getTestAccuracyOption, getTestLossOption, getTrainAccuracyOption, getTrainLossOption, getValAccuracyOption, getValLossOption } from '@/utils/random'
+import { getTestAccuracyOption, getTrainAccuracyOption, getTrainLossOption, getValAccuracyOption, getValLossOption } from '@/utils/random'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useNotificationStore } from '@/components/Notification/Store/useNotificationStore'
 import { Button } from 'antd'
@@ -43,7 +43,6 @@ export default function Page() {
         { title: '训练集准确率', func: getTrainAccuracyOption },
         { title: '验证集损失', func: getValLossOption },
         { title: '验证集准确率', func: getValAccuracyOption },
-        { title: '测试集损失', func: getTestLossOption },
         { title: '测试集准确率', func: getTestAccuracyOption },
     ]
     // 状态map

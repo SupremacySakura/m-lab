@@ -224,10 +224,6 @@ export const getValAccuracyOption = (count: number = 10) => {
   return baseLineOption('验证集准确率', data, '#1d4ed8', 1)
 }
 
-export const getTestLossOption = (count: number = 10) => {
-  const data = generateTrendArray(count, 0.9, 0.25, false, 0.04)
-  return baseLineOption('测试集损失', data, '#3b82f6', 1.2)
-}
 
 export const getTestAccuracyOption = (count: number = 10) => {
   const data = generateTrendArray(count, 0.65, 0.96, true, 0.02)
