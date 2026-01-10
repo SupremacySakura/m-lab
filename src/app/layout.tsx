@@ -37,6 +37,14 @@ export default function RootLayout({
                 },
                 Card: {
                   colorBgContainer: '#151E32',
+                },
+                Notification: {
+                  colorText: '#000000',
+                  colorTextHeading: '#000000',
+                },
+                Message: {
+                  colorText: '#000000',
+                  colorTextHeading: '#000000',
                 }
               }
             }}
